@@ -7,6 +7,17 @@ export default {
   ],
   theme: {
     extend: {
+      stroke: {
+        blue: '#1E40AF', // Add specific colors you want to use
+        red: '#EF4444', // Add more colors if necessary
+        green: '#10B981', // Example
+      },
+      colors: {
+        customBlue: '#b5c6cc', // your custom blue color
+        customLightBlue: '#dfe6e9', // your custom blue color
+        customGreen: '#10B981', // your custom green color
+        customGray: '#cccbc9', // your custom gray color
+      },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],
       },
