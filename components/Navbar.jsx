@@ -9,6 +9,7 @@ import { FaGoogle } from 'react-icons/fa';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   return (
     <nav className='bg-customBlue border-b border-customLightBlue'>
       <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
@@ -115,7 +116,8 @@ const Navbar = () => {
                   className='relative flex rounded-full bg-transparent text-sm focus:outline-none  focus:ring-offset-slate-400'
                   id='user-menu-button'
                   aria-expanded='false'
-                  aria-haspopup='true'>
+                  aria-haspopup='true'
+                  onClick={() => setIsProfileMenuOpen((prev) => !prev)}>
                   <span className='absolute -inset-1.5'></span>
                   <span className='sr-only'>Open user menu</span>
                   <Image
@@ -127,66 +129,70 @@ const Navbar = () => {
               </div>
 
               {/*  Profile dropdown */}
-              <div
-                id='user-menu'
-                className='hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-slate-500 ring-opacity-5 focus:outline-none'
-                role='menu'
-                aria-orientation='vertical'
-                aria-labelledby='user-menu-button'
-                tabIndex='-1'>
-                <Link
-                  href='/profile'
-                  className='block px-4 py-2 text-sm text-slate-400'
-                  role='menuitem'
-                  tabIndex='-1'
-                  id='user-menu-item-0'>
-                  Your Profile
-                </Link>
-                <Link
-                  href='/properties/saved'
-                  className='block px-4 py-2 text-sm text-slate-400'
-                  role='menuitem'
-                  tabIndex='-1'
-                  id='user-menu-item-2'>
-                  Saved Properties
-                </Link>
-                <button
-                  className='block px-4 py-2 text-sm text-slate-400'
-                  role='menuitem'
-                  tabIndex='-1'
-                  id='user-menu-item-2'>
-                  Sign Out
-                </button>
-              </div>
+              {isProfileMenuOpen && (
+                <div
+                  id='user-menu'
+                  className='absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-slate-500 ring-opacity-5 focus:outline-none'
+                  role='menu'
+                  aria-orientation='vertical'
+                  aria-labelledby='user-menu-button'
+                  tabIndex='-1'>
+                  <Link
+                    href='/profile'
+                    className='block px-4 py-2 text-sm text-slate-400'
+                    role='menuitem'
+                    tabIndex='-1'
+                    id='user-menu-item-0'>
+                    Your Profile
+                  </Link>
+                  <Link
+                    href='/properties/saved'
+                    className='block px-4 py-2 text-sm text-slate-400'
+                    role='menuitem'
+                    tabIndex='-1'
+                    id='user-menu-item-2'>
+                    Saved Properties
+                  </Link>
+                  <button
+                    className='block px-4 py-2 text-sm text-slate-400'
+                    role='menuitem'
+                    tabIndex='-1'
+                    id='user-menu-item-2'>
+                    Sign Out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/*  Mobile menu, show/hide based on menu state. */}
-      <div className='hidden' id='mobile-menu'>
-        <div className='space-y-1 px-2 pb-3 pt-2'>
-          <Link
-            href='/'
-            className='bg-slate-400 text-white block rounded-md px-3 py-2 text-base font-medium'>
-            Home
-          </Link>
-          <Link
-            href='/properties'
-            className='text-white block rounded-md px-3 py-2 text-base font-medium'>
-            Properties
-          </Link>
-          <Link
-            href='/properties/add'
-            className='text-white block rounded-md px-3 py-2 text-base font-medium'>
-            Add Property
-          </Link>
-          <button className='flex items-center text-white bg-slate-400 hover:bg-slate-500 hover:text-white rounded-md px-3 py-2 my-5'>
-            <i className='fa-brands fa-google mr-2'></i>
-            <span>Login or Register</span>
-          </button>
+      {isMobileMenuOpen && (
+        <div id='mobile-menu'>
+          <div className='space-y-1 px-2 pb-3 pt-2'>
+            <Link
+              href='/'
+              className='bg-slate-400 text-white block rounded-md px-3 py-2 text-base font-medium'>
+              Home
+            </Link>
+            <Link
+              href='/properties'
+              className='text-white block rounded-md px-3 py-2 text-base font-medium'>
+              Properties
+            </Link>
+            <Link
+              href='/properties/add'
+              className='text-white block rounded-md px-3 py-2 text-base font-medium'>
+              Add Property
+            </Link>
+            <button className='flex items-center text-white bg-slate-400 hover:bg-slate-500 hover:text-white rounded-md px-3 py-2 my-5'>
+              <i className='fa-brands fa-google mr-2'></i>
+              <span>Login or Register</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };
