@@ -13,10 +13,12 @@ export default {
         green: '#10B981', // Example
       },
       colors: {
-        customBlue: '#b5c6cc', // your custom blue color
-        customLightBlue: '#dfe6e9', // your custom blue color
+        customBlue: '#bac2c7', // your custom blue color
+        customLightBlue: '#d6dbde', // your custom blue color  #e4e7e9
+        customMedBlue: '#c8cfd1', // your custom blue color
         customGreen: '#10B981', // your custom green color
-        customGray: '#cccbc9', // your custom gray color
+        customGray: '#E4E5E5', // your custom gray color
+        customMedGray: '#b6b7b7', // your
       },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],

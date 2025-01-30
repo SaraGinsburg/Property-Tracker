@@ -11,11 +11,11 @@ import { FaGoogle } from 'react-icons/fa';
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const pathname = usePathname();
   return (
-    <nav className='bg-customBlue border-b border-customLightBlue'>
+    <nav className='bg-customBlue border-b border-customMedBlue'>
       <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
         <div className='relative flex h-20 items-center justify-between'>
           <div className='absolute inset-y-0 left-0 flex items-center md:hidden'>
@@ -88,7 +88,7 @@ const Navbar = () => {
           {!isLoggedIn && (
             <div className='hidden md:block md:ml-6'>
               <div className='flex items-center'>
-                <button className='flex items-center text-white bg-slate-400 hover:bg-slate-500 hover:text-white rounded-md px-3 py-2'>
+                <button className='flex items-center text-white bg-gray-400 hover:bg-gray-500 hover:text-white rounded-md px-3 py-2'>
                   <FaGoogle className='text-white mr-2' />
                   <span>Login or Register</span>
                 </button>
