@@ -15,6 +15,8 @@ export default {
       colors: {
         customBlue: '#bac2c7', // your custom blue color
         customLightBlue: '#d6dbde', // your custom blue color  #e4e7e9
+        // customVeryLightBlue: '#f0f6fa', // your custom blue color  #e4e7e9
+        customVeryLightBlue: '#FAFCFE', // your custom blue color  #e4e7e9
         customMedBlue: '#c8cfd1', // your custom blue color
         customDarkBlue: '#94999b', // your custom blue color
         customGreen: '#10B981', // your custom green color
