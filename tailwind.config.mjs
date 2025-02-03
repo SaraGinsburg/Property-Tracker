@@ -21,6 +21,7 @@ export default {
         customDarkBlue: '#94999b', // your custom blue color
         customGreen: '#10B981', // your custom green color
         customDarkGreen: '#006c7f', // your custom green color
+        customDMedGreen: '#008da6', // your custom green color
         customGray: '#E4E5E5', // your custom gray color
         customMedGray: '#b6b7b7',
         customPink: ' #a8516e',
