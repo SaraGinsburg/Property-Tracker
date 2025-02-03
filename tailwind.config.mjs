@@ -16,9 +16,12 @@ export default {
         customBlue: '#bac2c7', // your custom blue color
         customLightBlue: '#d6dbde', // your custom blue color  #e4e7e9
         customMedBlue: '#c8cfd1', // your custom blue color
+        customDarkBlue: '#94999b', // your custom blue color
         customGreen: '#10B981', // your custom green color
+        customDarkGreen: '#006c7f', // your custom green color
         customGray: '#E4E5E5', // your custom gray color
-        customMedGray: '#b6b7b7', // your
+        customMedGray: '#b6b7b7',
+        customPink: ' #a8516e',
       },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],
