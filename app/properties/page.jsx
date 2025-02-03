@@ -1,7 +1,10 @@
 import PropertyCard from '@/components/PropertyCard';
-import properties from '@/properties.json';
+import connectDB from '@/config/database';
+import Property from '@/models/Property';
 
-const PropertiesPage = () => {
+const PropertiesPage = async () => {
+  await connectDB();
+  const properties = await Property.find({}).lean(); //.lean() returns js object instead of a mongoDB document
   return (
     <section className='px-4 py-6'>
       <div className='container m-auto px-4 py-6'>
