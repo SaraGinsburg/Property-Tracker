@@ -1,4 +1,5 @@
 import PropertyHeaderImage from '@/components/PropertyHeaderImage';
+import PropertyDetails from '@/components/PropertyDetails';
 import connectDB from '@/config/database';
 import Property from '@/models/Property';
 
@@ -24,7 +25,7 @@ const PropertyPage = async ({ params }) => {
       <section className='bg-customLightBlue'>
         <div className='container m-auto py-10 px-6'>
           <div className='grid grid-cols-1 md:grid-cols-70/30 w-full gap-6'>
-            {/* /* {property info} */}
+            <PropertyDetails property={property} />
           </div>
         </div>
       </section>
