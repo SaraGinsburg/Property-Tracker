@@ -11,10 +11,11 @@ import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
 
 const Navbar = () => {
   const { data: session } = useSession();
-
+  const profileImage = session?.user?.image;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [providers, setProviders] = useState(null);
+
   const pathname = usePathname();
 
   useEffect(() => {
@@ -153,7 +154,9 @@ const Navbar = () => {
                     <span className='sr-only'>Open user menu</span>
                     <Image
                       className='h-8 w-8 rounded-full border-2 border-slate-400 filter-none'
-                      src={profileDefault}
+                      src={profileImage || profileDefault}
+                      width={40}
+                      height={40}
                       alt=''
                     />
                   </button>
@@ -188,7 +191,11 @@ const Navbar = () => {
                       className='block px-4 py-2 text-sm text-slate-400'
                       role='menuitem'
                       tabIndex='-1'
-                      id='user-menu-item-2'>
+                      id='user-menu-item-2'
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        signOut();
+                      }}>
                       Sign Out
                     </button>
                   </div>
