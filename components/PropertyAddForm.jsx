@@ -301,17 +301,6 @@ const PropertyAddForm = () => {
         </label>
         <div className='flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4'>
           <div className='flex items-center'>
-            <label htmlFor='weekly_rate' className='mr-2'>
-              Weekly
-            </label>
-            <input
-              type='number'
-              id='weekly_rate'
-              name='rates.weekly'
-              className='border rounded w-full py-2 px-3'
-            />
-          </div>
-          <div className='flex items-center'>
             <label htmlFor='monthly_rate' className='mr-2'>
               Monthly
             </label>
@@ -345,7 +334,7 @@ const PropertyAddForm = () => {
         <input
           type='text'
           id='seller_name'
-          name='seller_info.name.'
+          name='seller_info.name'
           className='border rounded w-full py-2 px-3'
           placeholder='Name'
         />
