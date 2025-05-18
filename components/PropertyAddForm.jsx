@@ -52,7 +52,7 @@ const PropertyAddForm = () => {
           placeholder='Add an optional description of your property'></textarea>
       </div>
 
-      <div className='mb-4 bg-customVeryLightBluePlus p-4'>
+      <div className='mb-4 bg-customVeryLightBluePlus p-4 rounded-lg'>
         <label className='block text-customDarkGray font-bold mb-2'>
           Location
         </label>
@@ -295,7 +295,7 @@ const PropertyAddForm = () => {
         </div>
       </div>
 
-      <div className='mb-4 bg-customVeryLightBluePlus p-4'>
+      <div className='mb-4 bg-customVeryLightBluePlus p-4 rounded-lg'>
         <label className='block text-customDarkGray font-bold mb-2'>
           Rates (Leave blank if not applicable)
         </label>

@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -55,7 +54,6 @@ const Navbar = () => {
               </svg>
             </button>
           </div>
-
           <div className='flex flex-1 items-center justify-center md:items-stretch md:justify-start'>
             {/* < Logo  */}
             <Link className='flex flex-shrink-0 items-center' href='/'>
@@ -94,7 +92,6 @@ const Navbar = () => {
               </div>
             </div>
           </div>
-
           {/*  Right Side Menu (Logged Out) */}
           {!session && (
             <div className='hidden md:block md:ml-6'>
@@ -112,8 +109,8 @@ const Navbar = () => {
               </div>
             </div>
           )}
-
           {/*  Right Side Menu (Logged In) */}
+
           {session && (
             <div className='absolute inset-y-0 right-0 flex items-center pr-2 md:static md:inset-auto md:ml-6 md:pr-0'>
               <Link href='/messages' className='relative group'>
@@ -193,7 +190,7 @@ const Navbar = () => {
                       tabIndex='-1'
                       id='user-menu-item-2'
                       onClick={() => {
-                        setIsMobileMenuOpen(false);
+                        setIsProfileMenuOpen(false);
                         signOut();
                       }}>
                       Sign Out

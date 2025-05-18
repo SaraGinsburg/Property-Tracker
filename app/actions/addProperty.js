@@ -18,6 +18,7 @@ async function addProperty(formData) {
   const amenities = formData.getAll('amenities');
   const images = formData.getAll('images').filter((image) => image.name !== '');
 
+  console.log('images', images);
   const propertyData = {
     owner: userId,
     type: formData.get('type'),
