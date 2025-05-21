@@ -27,6 +27,7 @@ export default {
         customGray: '#E4E5E5', // your custom gray color
         customMedGray: '#b6b7b7',
         customDarkGray: '#9b9e9e',
+        customVeryDarkGray: '#5a5c5c', // your custom gray color
         customPink: ' #a8516e',
       },
       fontFamily: {
