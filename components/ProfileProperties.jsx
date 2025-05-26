@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 import deleteProperty from '@/app/actions/deleteProperty';
 
 const ProfileProperties = ({ properties: initialProperties }) => {
@@ -16,9 +17,9 @@ const ProfileProperties = ({ properties: initialProperties }) => {
     setProperties((prevProperties) =>
       prevProperties.filter((property) => property._id !== propertyId)
     );
+    toast.success('Property deleted successfully');
+    // Optionally, you can revalidate the path to update the cache
   };
-
-  // Optionally, you can revalidate the path to update the cache
 
   return properties.map((property) => (
     <div key={property._id} className='mb-10'>
