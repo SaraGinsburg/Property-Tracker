@@ -2,10 +2,24 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import deleteProperty from '@/app/actions/deleteProperty';
 
 const ProfileProperties = ({ properties: initialProperties }) => {
   const [properties, setProperties] = useState(initialProperties);
-  // console.log('properties', properties);
+
+  const handleDeleteProperty = async (propertyId) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this property'
+    );
+    if (!confirmed) return;
+    await deleteProperty(propertyId);
+    setProperties((prevProperties) =>
+      prevProperties.filter((property) => property._id !== propertyId)
+    );
+  };
+
+  // Optionally, you can revalidate the path to update the cache
+
   return properties.map((property) => (
     <div key={property._id} className='mb-10'>
       <Link href={`/properties/${property._id}`}>
@@ -34,7 +48,8 @@ const ProfileProperties = ({ properties: initialProperties }) => {
         </a>
         <button
           className='bg-customPink text-white px-3 py-2 rounded-md hover:bg-customLightPink'
-          type='button'>
+          type='button'
+          onClick={() => handleDeleteProperty(property._id)}>
           Delete
         </button>
       </div>
