@@ -1,6 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { setDefaults, fromAddress } from 'react-geocode';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import Map, { Marker } from 'react-map-gl/mapbox';
+import Image from 'next/image';
+import pin from '@/assets/images/pin.svg';
+import Spinner from './Spinner';
 
 const PropertyMap = ({ property }) => {
   const [lat, setLat] = useState(null);
@@ -54,7 +59,7 @@ const PropertyMap = ({ property }) => {
   }, []);
 
   if (loading) {
-    return <div className='text-center text-customMedGray'>Loading map...</div>;
+    return <Spinner />;
   }
   if (geocodeError) {
     return (
@@ -64,6 +69,23 @@ const PropertyMap = ({ property }) => {
     );
   }
 
-  return <div>Map</div>;
+  return (
+    !loading && (
+      <Map
+        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+        mapLib={import('mapbox-gl')}
+        initialViewState={{
+          longitude: lng,
+          latitude: lat,
+          zoom: 15,
+        }}
+        style={{ width: '100%', height: 500 }}
+        mapStyle='mapbox://styles/mapbox/streets-v9'>
+        <Marker longitude={lng} latitude={lat} anchor='bottom'>
+          <Image src={pin} alt='location' width={40} height={40} />
+        </Marker>
+      </Map>
+    )
+  );
 };
 export default PropertyMap;
