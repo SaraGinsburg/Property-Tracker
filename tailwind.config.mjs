@@ -28,6 +28,8 @@ export default {
         customMedGray: '#b6b7b7',
         customDarkGray: '#9b9e9e',
         customVeryDarkGray: '#5a5c5c', // your custom gray color
+        customRed: '#ed7474',
+        customDarkRed: '#e64949',
         customPink: ' #a8516e',
         customLightPink: '#d1829c',
         customVeryLightPink: '#d6b2be',

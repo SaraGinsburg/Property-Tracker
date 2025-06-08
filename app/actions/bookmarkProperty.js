@@ -30,6 +30,9 @@ async function bookmarkProperty(propertyId) {
     message = 'Property bookmarked successfully';
     isBookmarked = true;
   }
+
+  console.log(message);
+
   // Save the user with updated bookmarks
   await user.save();
 
@@ -39,4 +42,4 @@ async function bookmarkProperty(propertyId) {
   return { message, isBookmarked };
 }
 
-export { bookmarkProperty };
+export default bookmarkProperty;
