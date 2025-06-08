@@ -30,6 +30,7 @@ export default {
         customVeryDarkGray: '#5a5c5c', // your custom gray color
         customPink: ' #a8516e',
         customLightPink: '#d1829c',
+        customVeryLightPink: '#d6b2be',
       },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],
