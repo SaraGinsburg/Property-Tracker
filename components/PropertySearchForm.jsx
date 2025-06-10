@@ -8,6 +8,22 @@ const PropertySearchForm = () => {
 
   const router = useRouter();
 
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   const query = new URLSearchParams();
+  //   if (location) {
+  //     query.set('location', location);
+  //   }
+  //   if (propertyType) {
+  //     query.set('propertyType', propertyType);
+  //   }
+  //   // If both fields are empty, redirect to the properties page
+  //   if ([...query].length === 0) {
+  //     router.push('/properties');
+  //   } else router.push(`/properties/search-results?${query.toString()}`);
+  // };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -15,12 +31,9 @@ const PropertySearchForm = () => {
       router.push('/properties');
     } else {
       const query = `?location=${location}&propertyType=${propertyType}`;
+
       router.push(`/properties/search-results${query}`);
     }
-    if (propertyType && propertyType !== 'All') {
-      query.set('propertyType', propertyType);
-    }
-    router.push(`/properties?${query.toString()}`);
   };
 
   return (
