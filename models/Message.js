@@ -29,7 +29,6 @@ const MessageSchema = new Schema(
     phone: {
       type: String,
       required: [true, 'Phone number is required'],
-      match: [/^\d{10}$/, 'Please enter a valid phone number'],
     },
     body: {
       type: String,

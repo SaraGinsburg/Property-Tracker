@@ -4,7 +4,7 @@ import Message from '@/models/Message';
 import { getSessionUser } from '@/utils/getSessionUser';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
-async function addMessage(formData) {
+async function addMessage(previousState, formData) {
   await connectDB();
   const sessionUser = await getSessionUser();
   if (!sessionUser || !sessionUser.userId) {
