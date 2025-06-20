@@ -23,7 +23,7 @@ export default {
         customGreen: '#219e75', // your custom green color
         // customGreen: '#10B981', // your custom green color
         customDarkGreen: '#006c7f', // your custom green color
-        customMedGreen: '#008da6', // your custom green color
+        customMedGreen: '#66C9A3', // your custom green color
         customGray: '#E4E5E5', // your custom gray color
         customMedGray: '#b6b7b7',
         customDarkGray: '#9b9e9e',
