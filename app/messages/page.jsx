@@ -6,13 +6,24 @@ import { getSessionUser } from '@/utils/getSessionUser';
 import MessageCard from '@/components/MessageCard';
 
 const MessagesPage = async () => {
-  connectDB();
+  await connectDB();
   const sessionUser = await getSessionUser();
+  if (!sessionUser || !sessionUser.userId) {
+    return (
+      <div className='text-center py-12'>
+        <p className='text-lg text-customDarkGray'>
+          You must be logged in to view messages.
+        </p>
+      </div>
+    );
+  }
   const { userId } = sessionUser;
+
   const readMessages = await Message.find({ recipient: userId, read: true })
     .populate('sender', 'name email')
     .populate('property', 'title location')
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .lean();
 
   const unreadMessages = await Message.find({ recipient: userId, read: false })
     .sort({ createdAt: -1 })
@@ -32,7 +43,9 @@ const MessagesPage = async () => {
       <div className='container m-auto py-24 max-w-6xl'>
         <div className='bg-white px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0'>
           <h1 className='text-2xl font-bold mb-4  text-customDarkGray'>
-            <div className='space-y-4'></div>
+            Your Messages
+          </h1>
+          <div className='space-y-4'>
             {messages.length === 0 ? (
               <p>You have no messages</p>
             ) : (
@@ -40,10 +53,9 @@ const MessagesPage = async () => {
                 <MessageCard key={message._id} message={message} />
               ))
             )}
-          </h1>
+          </div>
         </div>
       </div>
-      <p>This is the messages page.</p>
     </section>
   );
 };
