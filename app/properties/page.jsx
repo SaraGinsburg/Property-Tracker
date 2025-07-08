@@ -2,9 +2,12 @@ import PropertyCard from '@/components/PropertyCard';
 import connectDB from '@/config/database';
 import Property from '@/models/Property';
 
-const PropertiesPage = async () => {
+const PropertiesPage = async ({ searchParams: { page = 1, pageSize = 2 } }) => {
   await connectDB();
-  const properties = await Property.find({}).lean(); //.lean() returns js object instead of a mongoDB document
+  const skip = (page - 1) * pageSize;
+  const total = await Property.countDocuments({}); // Get total number of properties
+  const properties = await Property.find({}).skip(skip).limit(pageSize); //.lean() returns js object instead of a mongoDB document
+
   return (
     <section className='px-4 py-6'>
       <div className='container m-auto px-4 py-6'>

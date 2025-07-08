@@ -6,7 +6,7 @@ import getUnreadMessageCount from '@/app/actions/getUnreadMessageCount';
 //Create  Context
 const GlobalContext = createContext();
 
-//create a Provider
+//create Provider
 export const GlobalProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 

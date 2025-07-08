@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import markMessageAsRead from '@/app/actions/markMessageAsRead';
 import deleteMessage from '@/app/actions/deleteMessage';
 import { useGlobalContext } from '@/context/GlobalContext';
-import { set } from 'mongoose';
 
 const MessageCard = ({ message }) => {
   const [isRead, setIsRead] = useState(message.read);
