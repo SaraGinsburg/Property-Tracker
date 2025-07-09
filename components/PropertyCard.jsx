@@ -56,10 +56,10 @@ const PropertyCard = ({ property }) => {
 
         <div className='flex justify-center gap-4 text-customDarkGreen text-sm mb-4'>
           <p>
-            <FaMoneyBill className='md:hidden lg:inline' /> nightly
+            <FaMoneyBill className='md:hidden lg:inline' /> Nightly
           </p>
           <p>
-            <FaMoneyBill className='md:hidden lg:inline' /> monthly
+            <FaMoneyBill className='md:hidden lg:inline' /> Monthly
           </p>
         </div>
 
