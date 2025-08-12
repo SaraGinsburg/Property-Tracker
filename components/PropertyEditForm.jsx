@@ -1,9 +1,75 @@
+'use client';
+import { useState, useMemo } from 'react';
 import updateProperty from '@/app/actions/updateProperty';
 
+const MAX_IMAGES = 4;
+const MAX_NEW_BYTES = 1 * 1024 * 1024; // 1 MB
+
 const PropertyEditForm = ({ property }) => {
-  const updatePropertyById = updateProperty.bind(null, property._id);
+  // state for existing images: each { url, keep: true/false }
+  const [existing, setExisting] = useState(
+    property.images?.map((url) => ({ url, keep: true })) ?? []
+  );
+  // state for new uploads
+  const [newFiles, setNewFiles] = useState([]);
+  const [error, setError] = useState('');
+
+  // derived counts
+  const keptCount = useMemo(
+    () => existing.filter((e) => e.keep).length,
+    [existing]
+  );
+
+  const totalCount = keptCount + newFiles.length;
+  const newFilesTotalBytes = newFiles.reduce((acc, f) => acc + f.size, 0);
+
+  const toggleKeep = (index) => {
+    setExisting((prev) => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], keep: !copy[index].keep };
+      return copy;
+    });
+    setError('');
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files || []);
+
+    if (keptCount + files.length > MAX_IMAGES) {
+      setError(`You can have at most ${MAX_IMAGES} images total.`);
+      e.target.value = '';
+      setNewFiles([]);
+      return;
+    }
+
+    const totalBytes = files.reduce((acc, f) => acc + f.size, 0);
+    if (totalBytes > MAX_NEW_BYTES) {
+      setError(
+        `Total size of new images must be ≤ ${Math.round(
+          MAX_NEW_BYTES / 1024
+        )} KB. (${Math.round(totalBytes / 1024)} KB selected)`
+      );
+      e.target.value = '';
+      setNewFiles([]);
+      return;
+    }
+
+    setNewFiles(files);
+    setError('');
+  };
+
+  const submitDisabled =
+    totalCount === 0 ||
+    totalCount > MAX_IMAGES ||
+    newFilesTotalBytes > MAX_NEW_BYTES;
+
+  const handleUpdate = async (formData) => {
+    await updateProperty(formData);
+  };
+
   return (
-    <form action={updatePropertyById}>
+    <form action={handleUpdate} encType='multipart/form-data'>
+      <input type='hidden' name='propertyId' value={property._id} />
       <h2 className='text-3xl text-center font-semibold mb-6'>Edit Property</h2>
 
       <div className='mb-4'>
@@ -36,9 +102,8 @@ const PropertyEditForm = ({ property }) => {
           id='name'
           name='name'
           className='border rounded w-full py-2 px-3 mb-2'
-          placeholder='eg. Beautiful Apartment In Miami'
-          required
           defaultValue={property.name}
+          required
         />
       </div>
       <div className='mb-4'>
@@ -52,8 +117,9 @@ const PropertyEditForm = ({ property }) => {
           name='description'
           className='border rounded w-full py-2 px-3'
           rows='4'
-          placeholder='Add an optional description of your property'
-          defaultValue={property.description}></textarea>
+          placeholder={
+            property.description || 'Describe your property...'
+          }></textarea>
       </div>
 
       <div className='mb-4 bg-customVeryLightBluePlus p-4 rounded-lg'>
@@ -65,8 +131,7 @@ const PropertyEditForm = ({ property }) => {
           id='street'
           name='location.street'
           className='border rounded w-full py-2 px-3 mb-2'
-          placeholder='Street'
-          defaultValue={property.location.street}
+          placeholder={property.location?.street || 'Street Address'}
         />
         <input
           type='text'
@@ -91,8 +156,6 @@ const PropertyEditForm = ({ property }) => {
           id='zipcode'
           name='location.zipcode'
           className='border rounded w-full py-2 px-3 mb-2'
-          placeholder='Zipcode'
-          required
           defaultValue={property.location.zipcode}
         />
       </div>
@@ -109,8 +172,8 @@ const PropertyEditForm = ({ property }) => {
             id='beds'
             name='beds'
             className='border rounded w-full py-2 px-3'
-            required
             defaultValue={property.beds}
+            required
           />
         </div>
         <div className='w-full sm:w-1/3 px-2'>
@@ -124,8 +187,8 @@ const PropertyEditForm = ({ property }) => {
             id='baths'
             name='baths'
             className='border rounded w-full py-2 px-3'
-            required
             defaultValue={property.baths}
+            required
           />
         </div>
         <div className='w-full sm:w-1/3 pl-2'>
@@ -350,6 +413,7 @@ const PropertyEditForm = ({ property }) => {
               id='nightly_rate'
               name='rates.nightly'
               className='border rounded w-full py-2 px-3'
+              defaultValue={property.rates.nightly}
             />
           </div>
         </div>
@@ -398,15 +462,106 @@ const PropertyEditForm = ({ property }) => {
           name='seller_info.phone'
           className='border rounded w-full py-2 px-3'
           placeholder='Phone'
-          required
           defaultValue={property.seller_info.phone}
         />
       </div>
 
-      <div>
+      {/* Existing images with keep/remove */}
+      {existing.length > 0 && (
+        <div className='mb-4'>
+          <label className='block text-customDarkGray font-bold mb-2'>
+            Existing Images
+          </label>
+          <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
+            {existing.map((img, idx) => (
+              <div key={idx} className='relative border rounded p-1'>
+                <img
+                  src={img.url}
+                  alt={`Property ${idx}`}
+                  className='rounded w-full h-40 object-cover'
+                />
+                <div className='flex items-center justify-between mt-2'>
+                  <label className='text-sm'>
+                    <input
+                      type='checkbox'
+                      checked={img.keep}
+                      onChange={() => toggleKeep(idx)}
+                    />{' '}
+                    Keep
+                  </label>
+                  <div className='text-xs text-gray-500'>
+                    {img.keep ? 'Keep' : 'Remove'}
+                  </div>
+                </div>
+                {/* Only send kept images */}
+                {img.keep && (
+                  <input type='hidden' name='oldImages' value={img.url} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Upload new images */}
+      <div className='mb-4'>
+        <label className='block text-customDarkGray font-bold mb-2'>
+          Upload New Images (up to {MAX_IMAGES} total) — new uploads ≤{' '}
+          {Math.round(MAX_NEW_BYTES / 1024)} KB total
+        </label>
+        <input
+          type='file'
+          id='images'
+          name='images'
+          multiple
+          accept='image/*'
+          className='border rounded w-full py-2 px-3'
+          onChange={handleFileChange}
+        />
+        {error && <p className='text-red-600 mt-2'>{error}</p>}
+
+        {newFiles.length > 0 && (
+          <div className='mt-4'>
+            <p className='font-semibold'>
+              Selected new images ({newFiles.length}):
+            </p>
+            <div className='grid grid-cols-3 gap-2 mt-2'>
+              {newFiles.map((f, i) => {
+                const url = URL.createObjectURL(f);
+                return (
+                  <div key={i} className='p-1 border rounded'>
+                    <img
+                      src={url}
+                      alt={f.name}
+                      className='w-full h-24 object-cover rounded'
+                    />
+                    <div className='text-xs mt-1'>
+                      {f.name} ({Math.round(f.size / 1024)} KB)
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Example: other property fields */}
+      {/* ... keep your existing form inputs here ... */}
+
+      {/* Submit */}
+      <div className='mt-6'>
+        <div className='mb-2 text-sm'>
+          Total images after update: {totalCount} (max {MAX_IMAGES})
+        </div>
         <button
-          className='bg-customDarkBlue hover:bg-customMedBlue text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline'
-          type='submit'>
+          type='submit'
+          disabled={submitDisabled}
+          className={`bg-customDarkBlue text-white font-bold py-2 px-4 rounded-full w-full ${
+            submitDisabled
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-customMedBlue'
+          }`}>
           Update Property
         </button>
       </div>

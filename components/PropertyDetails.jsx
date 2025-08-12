@@ -5,6 +5,7 @@ import {
   FaBath,
   FaRulerCombined,
   FaMapMarker,
+  FaHome,
 } from 'react-icons/fa';
 import PropertyMap from './PropertyMap';
 
@@ -19,8 +20,8 @@ const PropertyDetails = ({ property }) => {
         <div className='text-customMedGray mb-4 flex align-middle justify-center md:justify-start'>
           <FaMapMarker className='text-customPink mt-1 mr-1' />
           <p className='text-customPink'>
-            {property.location.street}, {property.location.city}{' '}
-            {property.location.state} {property.location.zipcode}
+            {property.location.city} {property.location.state}{' '}
+            {property.location.zipcode}
           </p>
         </div>
 
@@ -71,7 +72,14 @@ const PropertyDetails = ({ property }) => {
             <span className='hidden sm:inline'>sqft</span>
           </p>
         </div>
-        <p className='text-customPink mb-4'>{property.description}</p>
+        <p className='text-customMedGray mb-4'>
+          {property.description.split(/[.\,]/).map((part, index) => (
+            <span key={index}>
+              {part.trim()}
+              <br />
+            </span>
+          ))}
+        </p>
       </div>
 
       <div className='bg-white p-6 rounded-lg shadow-md mt-6'>

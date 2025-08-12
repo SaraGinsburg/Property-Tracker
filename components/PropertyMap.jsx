@@ -1,10 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { setDefaults, fromAddress } from 'react-geocode';
+console.log('fromAddress', fromAddress);
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Map, { Marker } from 'react-map-gl/mapbox';
 import Image from 'next/image';
 import pin from '@/assets/images/pin.svg';
+import generalMarker from '@/assets/images/dot-circle.svg'; // replace with your icon
 import Spinner from './Spinner';
 
 const PropertyMap = ({ property }) => {
@@ -77,8 +79,9 @@ const PropertyMap = ({ property }) => {
         initialViewState={{
           longitude: lng,
           latitude: lat,
-          zoom: 15,
+          zoom: 11,
         }}
+        maxZoom={14} // limit how far in users can zoom
         style={{ width: '100%', height: 500 }}
         mapStyle='mapbox://styles/mapbox/streets-v9'>
         <Marker longitude={lng} latitude={lat} anchor='bottom'>

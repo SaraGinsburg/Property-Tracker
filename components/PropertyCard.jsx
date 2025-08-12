@@ -6,6 +6,7 @@ import {
   FaRulerCombined,
   FaMoneyBill,
   FaMapMarker,
+  FaHome,
 } from 'react-icons/fa';
 
 const PropertyCard = ({ property }) => {
