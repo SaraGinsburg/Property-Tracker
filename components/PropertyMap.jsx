@@ -9,6 +9,12 @@ import pin from '@/assets/images/pin.svg';
 import generalMarker from '@/assets/images/dot-circle.svg'; // replace with your icon
 import Spinner from './Spinner';
 
+setDefaults({
+  key: process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY,
+  language: 'en',
+  region: 'us',
+});
+
 const PropertyMap = ({ property }) => {
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
@@ -21,12 +27,6 @@ const PropertyMap = ({ property }) => {
   });
   const [loading, setLoading] = useState(true);
   const [geocodeError, setGeocodeError] = useState(false);
-
-  setDefaults({
-    key: process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY,
-    language: 'en',
-    region: 'us',
-  });
 
   useEffect(() => {
     const fetchCoords = async () => {
@@ -58,7 +58,12 @@ const PropertyMap = ({ property }) => {
     };
 
     fetchCoords();
-  }, []);
+  }, [
+    property.location.street,
+    property.location.city,
+    property.location.state,
+    property.location.zipcode,
+  ]);
 
   if (loading) {
     return <Spinner />;
