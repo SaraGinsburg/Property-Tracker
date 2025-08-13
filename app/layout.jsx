@@ -1,32 +1,35 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
-import { ToastContainer } from 'react-toastify';
 import { GlobalProvider } from '@/context/GlobalContext';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@/assets/styles/globals.css';
 import 'photoswipe/dist/photoswipe.css';
 
 export const metadata = {
   title: 'Property Tracker',
-  keywords: 'rental, property, crown heights, real estate',
   description: 'Find a suitable rental property',
+  keywords: 'rental, property, crown heights, real estate',
+  icons: {
+    icon: '/favicon.ico',
+    sizes: '128x128', // must be in public/
+  },
 };
-const MainLayout = ({ children }) => {
+
+export default function RootLayout({ children }) {
   return (
-    <AuthProvider>
-      <GlobalProvider>
-        <html>
-          <body>
+    <html lang='en'>
+      <body>
+        <AuthProvider>
+          <GlobalProvider>
             <Navbar />
             <main>{children}</main>
             <Footer />
             <ToastContainer />
-          </body>
-        </html>
-      </GlobalProvider>
-    </AuthProvider>
+          </GlobalProvider>
+        </AuthProvider>
+      </body>
+    </html>
   );
-};
-
-export default MainLayout;
+}
