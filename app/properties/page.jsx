@@ -3,11 +3,15 @@ import connectDB from '@/config/database';
 import Property from '@/models/Property';
 import Pagination from '@/components/Pagination';
 
-const PropertiesPage = async ({ searchParams: { page = 1, pageSize = 9 } }) => {
+const PropertiesPage = async (props) => {
+  const { searchParams } = props;
+  const page = parseInt(searchParams.page) || 1; // Default to page 1 if not provided
+  const pageSize = parseInt(searchParams.pageSize) || 10; // Default to 10
+
   await connectDB();
   const skip = (page - 1) * pageSize;
   const total = await Property.countDocuments({}); // Get total number of properties
-  const properties = await Property.find({}).skip(skip).limit(pageSize); //.lean() returns js object instead of a mongoDB document
+  const properties = await Property.find({}).skip(skip).limit(pageSize).lean(); //returns js object instead of a mongoDB document
 
   const showPagination = total > pageSize;
 
@@ -25,11 +29,7 @@ const PropertiesPage = async ({ searchParams: { page = 1, pageSize = 9 } }) => {
         )}
         {showPagination && (
           <div className='flex justify-center mt-6'>
-            <Pagination
-              page={parseInt(page)}
-              pageSize={parseInt(pageSize)}
-              totalItems={total}
-            />
+            <Pagination page={page} pageSize={pageSize} totalItems={total} />
           </div>
         )}
       </div>
