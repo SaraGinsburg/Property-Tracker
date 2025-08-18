@@ -19,12 +19,29 @@ const Navbar = () => {
   const pathname = usePathname();
 
   useEffect(() => {
+    // fetch auth providers
     const setAuthProviders = async () => {
       const res = await getProviders();
       setProviders(res);
     };
     setAuthProviders();
+
+    // handle window resize
+    const handleResize = () => {
+      // close mobile menu if leaving mobile view
+      if (window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // cleanup function
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
+
   return (
     <nav className='bg-customBlue border-b border-customMedBlue'>
       <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
