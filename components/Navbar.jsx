@@ -26,14 +26,15 @@ const Navbar = () => {
     };
     setAuthProviders();
 
-    // handle window resize
     const handleResize = () => {
+      // always close profile menu on resize
+      setIsProfileMenuOpen(false);
+
       // close mobile menu if leaving mobile view
       if (window.innerWidth >= 768) {
         setIsMobileMenuOpen(false);
       }
     };
-
     window.addEventListener('resize', handleResize);
 
     // cleanup function
@@ -119,7 +120,7 @@ const Navbar = () => {
                     <button
                       key={index}
                       onClick={() => signIn(provider.id)}
-                      className='flex items-center text-white bg-gray-400 hover:bg-gray-500 hover:text-white rounded-md px-3 py-2'>
+                      className='flex items-center text-white bg-customMedGray hover:bg-customGray hover:text-white rounded-md px-3 py-2'>
                       <FaGoogle className='text-white mr-2' />
                       <span>Login or Register</span>
                     </button>
@@ -228,14 +229,16 @@ const Navbar = () => {
             <Link
               href='/'
               className={`${
-                pathname === '/' ? 'bg-slate-400' : ''
+                pathname === '/' ? ' hover:bg-customGray bg-customMedGray' : ''
               } text-white block max-w-max rounded-md px-3 py-2 text-base font-medium`}>
               Home
             </Link>
             <Link
               href='/properties'
               className={`${
-                pathname === '/properties' ? 'bg-slate-400' : ''
+                pathname === '/properties'
+                  ? ' hover:bg-customGray bg-customMedGray'
+                  : ''
               } text-white block max-w-max rounded-md px-3 py-2 text-base font-medium`}>
               Properties
             </Link>
@@ -243,16 +246,26 @@ const Navbar = () => {
               <Link
                 href='/properties/add'
                 className={`${
-                  pathname === '/properties/add' ? 'bg-slate-400' : ''
+                  pathname === '/properties/add'
+                    ? ' hover:bg-customGray bg-customMedGray'
+                    : ''
                 } text-white block max-w-max rounded-md px-3 py-2 text-base font-medium`}>
                 Add Property
               </Link>
             )}
             {!session && (
-              <button className='flex items-center text-white bg-slate-400 hover:bg-slate-500 hover:text-white rounded-md px-3 py-2 my-5'>
-                <i className='fa-brands fa-google mr-2'></i>
-                <span>Login or Register</span>
-              </button>
+              <div className='flex items-center'>
+                {providers &&
+                  Object.values(providers).map((provider, index) => (
+                    <button
+                      key={index}
+                      onClick={() => signIn(provider.id)}
+                      className='flex items-center text-white  hover:bg-customGray bg-customMedGray hover:text-white rounded-md px-3 py-2'>
+                      <FaGoogle className='text-white mr-2' />
+                      <span>Login or Register</span>
+                    </button>
+                  ))}
+              </div>
             )}
           </div>
         </div>
