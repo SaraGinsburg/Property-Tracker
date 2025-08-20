@@ -35,16 +35,24 @@ async function deleteProperty(propertyId) {
     return publicId;
   });
 
-  // Delete images from Cloudinary
+  // Delete images from Cloudinary in parallel
   if (publicIds.length > 0) {
-    for (let publicId of publicIds) {
-      await cloudinary.uploader.destroy('propertytracker/' + publicId);
-    }
+    await Promise.all(
+      publicIds.map((publicId) =>
+        cloudinary.uploader.destroy(`propertytracker/${publicId}`)
+      )
+    );
   }
 
+  //delete the property from the MongoDB database
   await property.deleteOne();
 
-  // Revalidate the path to update the cache
+  // Revalidate the paths where the property might appear
   revalidatePath('/', 'layout');
+  revalidatePath('/properties');
+  revalidatePath(`/properties/${propertyId}`);
+
+  // Return a success response for the client
+  return { success: true, propertyId };
 }
 export default deleteProperty;
