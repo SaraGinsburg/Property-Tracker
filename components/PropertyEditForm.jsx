@@ -34,28 +34,38 @@ const PropertyEditForm = ({ property }) => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
+    let validFiles = [];
+    let errorMessage = '';
 
+    // Check count limit
     if (keptCount + files.length > MAX_IMAGES) {
-      setError(`You can have at most ${MAX_IMAGES} images total.`);
-      e.target.value = '';
-      setNewFiles([]);
-      return;
+      errorMessage = `You can have at most ${MAX_IMAGES} images total.`;
+      // Optionally, allow some of them if it fits
+      validFiles = files.slice(0, MAX_IMAGES - keptCount);
+    } else {
+      validFiles = [...files];
     }
 
-    const totalBytes = files.reduce((acc, f) => acc + f.size, 0);
+    // Check total size
+    const totalBytes = validFiles.reduce((acc, f) => acc + f.size, 0);
     if (totalBytes > MAX_NEW_BYTES) {
-      setError(
-        `Total size of new images must be ≤ ${Math.round(
-          MAX_NEW_BYTES / 1024
-        )} KB. (${Math.round(totalBytes / 1024)} KB selected)`
-      );
-      e.target.value = '';
-      setNewFiles([]);
-      return;
+      errorMessage = `Total size of new images must be ≤ ${Math.round(
+        MAX_NEW_BYTES / 1024
+      )} KB. (${Math.round(totalBytes / 1024)} KB selected)`;
+      // Filter files to fit within size limit
+      let sizeAccumulator = 0;
+      validFiles = validFiles.filter((f) => {
+        if (sizeAccumulator + f.size <= MAX_NEW_BYTES) {
+          sizeAccumulator += f.size;
+          return true;
+        }
+        return false;
+      });
     }
 
-    setNewFiles(files);
-    setError('');
+    setNewFiles(validFiles);
+    setError(errorMessage);
+    e.target.value = ''; // reset input to allow re-selecting same files
   };
 
   const submitDisabled =
@@ -68,7 +78,7 @@ const PropertyEditForm = ({ property }) => {
   };
 
   return (
-    <form action={handleUpdate} encType='multipart/form-data'>
+    <form action={handleUpdate}>
       <input type='hidden' name='propertyId' value={property._id} />
       <h2 className='text-3xl text-center font-semibold mb-6'>Edit Property</h2>
 
