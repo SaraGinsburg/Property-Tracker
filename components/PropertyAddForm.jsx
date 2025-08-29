@@ -1,8 +1,66 @@
+'use client';
+import { useState } from 'react';
 import addProperty from '@/app/actions/addProperty';
 
 const PropertyAddForm = () => {
+  const MAX_IMAGES = 4;
+
+  const [error, setError] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files || []);
+
+    if (files.length > MAX_IMAGES) {
+      setError(`You can select at most ${MAX_IMAGES} images.`);
+      e.target.value = '';
+      setSelectedFiles([]);
+      return;
+    }
+
+    setError('');
+    setSelectedFiles(files);
+  };
+
+  // Handle client-side submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    //upload images to cloudinary
+    const uploadPromises = selectedFiles.map(async (file) => {
+      const data = new FormData();
+      data.append('file', file);
+      data.append('upload_preset', 'property-tracker');
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
+        {
+          method: 'POST',
+          body: data,
+        }
+      );
+      const result = await res.json();
+      return result.secure_url; // Cloudinary URL
+    });
+
+    const cloudinaryUrls = await Promise.all(uploadPromises);
+
+    // Append the Cloudinary URLs to formData
+    cloudinaryUrls.forEach((url) => formData.append('images', url));
+
+    try {
+      await addProperty(formData); //server action saves all fields + URLS
+      alert('Property added successfully!');
+      e.target.reset();
+      setSelectedFiles([]);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to add property.');
+    }
+  };
+
   return (
-    <form action={addProperty}>
+    <form onSubmit={handleSubmit}>
       <h2 className='text-3xl text-center font-semibold mb-6'>Add Property</h2>
 
       <div className='mb-4'>
@@ -373,7 +431,7 @@ const PropertyAddForm = () => {
         <label
           htmlFor='images'
           className='block text-customDarkGray font-bold mb-2'>
-          Images (Select up to 4 images)
+          Images (Select up to {MAX_IMAGES} images, each ≤ 1MB){' '}
         </label>
         <input
           type='file'
@@ -383,7 +441,28 @@ const PropertyAddForm = () => {
           accept='image/*'
           multiple
           required
+          onChange={handleFileChange}
         />
+        {error && <p className='text-red-600 mt-2'>{error}</p>}
+        {selectedFiles.length > 0 && (
+          <div className='mt-4 grid grid-cols-3 gap-2'>
+            {selectedFiles.map((file, i) => {
+              const url = URL.createObjectURL(file);
+              return (
+                <div key={i} className='p-1 border rounded'>
+                  <img
+                    src={url}
+                    alt={file.name}
+                    className='w-full h-24 object-cover rounded'
+                  />
+                  <div className='text-xs mt-1'>
+                    {file.name} ({Math.round(file.size / 1024)} KB)
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div>

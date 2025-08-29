@@ -5,20 +5,27 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
 const MAX_IMAGES = 4;
+const MAX_NEW_BYTES = 1 * 1024 * 1024; // 1 MB
+const MAX_TOTAL_BYTES = 1024 * 1024; // 1 MB
 
 const PropertyEditForm = ({ property }) => {
   const router = useRouter();
+  // state for existing images: each { url, keep: true/false }
   const [existing, setExisting] = useState(
     property.images?.map((url) => ({ url, keep: true })) ?? []
   );
+  // state for new uploads
   const [newFiles, setNewFiles] = useState([]);
   const [error, setError] = useState('');
 
+  // derived counts
   const keptCount = useMemo(
     () => existing.filter((e) => e.keep).length,
     [existing]
   );
+
   const totalCount = keptCount + newFiles.length;
+  const newFilesTotalBytes = newFiles.reduce((acc, f) => acc + f.size, 0);
 
   const toggleKeep = (index) => {
     setExisting((prev) => {
@@ -29,9 +36,13 @@ const PropertyEditForm = ({ property }) => {
     setError('');
   };
 
+  // Handle file selection
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
+    let validFiles = [];
+    let invalidFiles = [];
 
+    // Check total file count including existing kept images
     if (keptCount + files.length > MAX_IMAGES) {
       setError(`You can have at most ${MAX_IMAGES} images total.`);
       e.target.value = '';
@@ -39,50 +50,52 @@ const PropertyEditForm = ({ property }) => {
       return;
     }
 
-    setNewFiles(files);
+    files.forEach((file) => {
+      if (file.size > MAX_NEW_BYTES) {
+        invalidFiles.push(file.name);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (invalidFiles.length > 0) {
+      setError(
+        `These files are too large (max ${Math.round(
+          MAX_NEW_BYTES / 1024
+        )} KB): ${invalidFiles.join(', ')}`
+      );
+      e.target.value = '';
+      setNewFiles([]);
+      return;
+    }
+
+    // All files valid
+    setNewFiles(validFiles);
     setError('');
-    e.target.value = '';
-    console.log('New files selected:', newFiles);
+    e.target.value = ''; // reset input so user can reselect the same file
   };
 
   const submitDisabled = totalCount === 0 || totalCount > MAX_IMAGES;
 
-  // Updated handleSubmit function
+  const validationError = useMemo(() => {
+    if (totalCount > MAX_IMAGES) {
+      return `You can have at most ${MAX_IMAGES} images total.`;
+    }
+    if (newFiles.some((f) => f.size > MAX_NEW_BYTES)) {
+      return `Each file must be ≤ ${Math.round(MAX_NEW_BYTES / 1024)} KB.`;
+    }
+    return '';
+  }, [totalCount, newFiles]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.target);
+    // Add newFiles from React state to FormData
+    newFiles.forEach((file) => {
+      formData.append('images', file);
+    });
+
     try {
-      // 1️⃣ Upload new files to Cloudinary and collect URLs
-      const uploadedUrls = [];
-      for (const file of newFiles) {
-        const uploadData = new FormData();
-        uploadData.append('file', file);
-        uploadData.append(
-          'upload_preset',
-          process.env.NEXT_PUBLIC_CLOUDINARY_PRESET
-        );
-        try {
-          const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD}/upload`,
-            { method: 'POST', body: uploadData }
-          );
-          const data = await res.json();
-          console.log('Cloudinary response:', data);
-          if (data.secure_url) uploadedUrls.push(data.secure_url);
-          else console.error('Cloudinary upload error:', data);
-        } catch (err) {
-          console.error('Cloudinary upload failed for', file.name, err);
-        }
-      }
-
-      // 2️⃣ Prepare FormData for server action
-      const formData = new FormData(e.target);
-      formData.delete('images'); // remove raw files
-      // Only append uploadedImages if there are any
-      if (uploadedUrls.length > 0) {
-        formData.append('uploadedImages', JSON.stringify(uploadedUrls));
-      }
-
-      // 3️⃣ Call server action
       const updated = await updateProperty(formData);
       if (updated.success) {
         toast.success('Property updated successfully!');
@@ -100,6 +113,7 @@ const PropertyEditForm = ({ property }) => {
     <form onSubmit={handleSubmit}>
       <input type='hidden' name='propertyId' value={property._id} />
       <h2 className='text-3xl text-center font-semibold mb-6'>Edit Property</h2>
+
       <div className='mb-4'>
         <label
           htmlFor='type'
@@ -149,6 +163,7 @@ const PropertyEditForm = ({ property }) => {
             property.description || 'Describe your property...'
           }></textarea>
       </div>
+
       <div className='mb-4 bg-customVeryLightBluePlus p-4 rounded-lg'>
         <label className='block text-customDarkGray font-bold mb-2'>
           Location
@@ -186,6 +201,7 @@ const PropertyEditForm = ({ property }) => {
           defaultValue={property.location.zipcode}
         />
       </div>
+
       <div className='mb-4 flex flex-wrap'>
         <div className='w-full sm:w-1/3 pr-2'>
           <label
@@ -233,6 +249,7 @@ const PropertyEditForm = ({ property }) => {
           />
         </div>
       </div>
+
       <div className='mb-4'>
         <label className='block text-customDarkGray font-bold mb-2'>
           Amenities
@@ -411,6 +428,7 @@ const PropertyEditForm = ({ property }) => {
           </div>
         </div>
       </div>
+
       <div className='mb-4 bg-customVeryLightBluePlus p-4 rounded-lg'>
         <label className='block text-customDarkGray font-bold mb-2'>
           Rates (Leave blank if not applicable)
@@ -442,6 +460,7 @@ const PropertyEditForm = ({ property }) => {
           </div>
         </div>
       </div>
+
       <div className='mb-4'>
         <label
           htmlFor='seller_name'
@@ -488,9 +507,8 @@ const PropertyEditForm = ({ property }) => {
           defaultValue={property.seller_info.phone}
         />
       </div>
-      {/* Keep your existing form inputs here, unchanged  */}
 
-      {/* Existing images */}
+      {/* Existing images with keep/remove */}
       {existing.length > 0 && (
         <div className='mb-4'>
           <label className='block text-customDarkGray font-bold mb-2'>
@@ -517,6 +535,7 @@ const PropertyEditForm = ({ property }) => {
                     {img.keep ? 'Keep' : 'Remove'}
                   </div>
                 </div>
+                {/* Only send kept images */}
                 {img.keep && (
                   <input type='hidden' name='oldImages' value={img.url} />
                 )}
@@ -525,10 +544,12 @@ const PropertyEditForm = ({ property }) => {
           </div>
         </div>
       )}
-      {/* New images upload */}
+
+      {/* Upload new images */}
       <div className='mb-4'>
         <label className='block text-customDarkGray font-bold mb-2'>
-          Upload New Images (up to {MAX_IMAGES} total)
+          Upload New Images (up to {MAX_IMAGES} total) — each upload ≤{' '}
+          {Math.round(MAX_NEW_BYTES / 1024)} KB total
         </label>
         <input
           type='file'
@@ -538,8 +559,10 @@ const PropertyEditForm = ({ property }) => {
           accept='image/*'
           className='border rounded w-full py-2 px-3'
           onChange={handleFileChange}
-        />
-        {error && <p className='text-red-600 mt-2'>{error}</p>}
+        />{' '}
+        {(error || validationError) && (
+          <p className='text-red-600 mt-2'>{error || validationError}</p>
+        )}{' '}
         {newFiles.length > 0 && (
           <div className='mt-4'>
             <p className='font-semibold'>
@@ -565,6 +588,11 @@ const PropertyEditForm = ({ property }) => {
           </div>
         )}
       </div>
+
+      {/* Example: other property fields */}
+      {/* ... keep your existing form inputs here ... */}
+
+      {/* Submit */}
       <div className='mt-6'>
         <div className='mb-2 text-sm'>
           Total images after update: {totalCount} (max {MAX_IMAGES})
@@ -583,5 +611,4 @@ const PropertyEditForm = ({ property }) => {
     </form>
   );
 };
-
 export default PropertyEditForm;
