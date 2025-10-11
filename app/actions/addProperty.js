@@ -2,9 +2,8 @@
 import connectDB from '@/config/database';
 import Property from '@/models/Property';
 import { getSessionUser } from '@/utils/getSessionUser';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import cloudinary from '@/config/cloudinary';
 
 async function addProperty(formData) {
   try {
@@ -23,11 +22,18 @@ async function addProperty(formData) {
 
     //Access all values from amenities and images
     const amenities = formData.getAll('amenities') || [];
-    const images = (formData.getAll('images') || []).filter(
-      (image) => image.name !== ''
-    );
-
-    console.log('images', images);
+    //const imageUrls = formData.getAll('images') || []; //this is array of URLs
+    let imageUrls = [];
+    try {
+      imageUrls = JSON.parse(formData.get('images') || '[]');
+    } catch {
+      imageUrls = [];
+    }
+    if (!Array.isArray(imageUrls)) {
+      imageUrls = imageUrls ? [imageUrls] : [];
+    }
+    //
+    console.log('images', imageUrls);
     const propertyData = {
       owner: userId,
       type: formData.get('type') || '',
@@ -53,28 +59,8 @@ async function addProperty(formData) {
         email: formData.get('seller_info.email') || '',
         phone: formData.get('seller_info.phone') || '',
       },
+      images: imageUrls,
     };
-
-    const imageUrls = [];
-
-    for (const imageFile of images) {
-      const imageBuffer = await imageFile.arrayBuffer();
-      const imageArray = Array.from(new Uint8Array(imageBuffer));
-      const imageData = Buffer.from(imageArray);
-
-      //convert to base64
-      const imageBase64 = imageData.toString('base64');
-
-      //make request to cloudinary
-      const result = await cloudinary.uploader.upload(
-        `data:image/png;base64,${imageBase64}`,
-        {
-          folder: 'propertytracker',
-        }
-      );
-      imageUrls.push(result.secure_url);
-    }
-    propertyData.images = imageUrls;
 
     const newProperty = new Property(propertyData);
     await newProperty.save();
@@ -82,6 +68,9 @@ async function addProperty(formData) {
     revalidatePath('/', 'layout');
     redirect(`/properties/${newProperty._id}`);
   } catch (error) {
+    if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+      throw error; // Let Next.js handle it silently
+    }
     console.error('Error in addProperty:', error);
     throw error;
   }

@@ -4,8 +4,12 @@ import Property from '@/models/Property';
 import Pagination from '@/components/Pagination';
 
 const PropertiesPage = async ({ searchParams }) => {
-  const page = parseInt(searchParams?.page) || 1; // Default to page 1 if not provided
-  const pageSize = parseInt(searchParams?.pageSize) || 10; // Default to 10
+  // const page = parseInt(searchParams?.page) || 1; // Default to page 1 if not provided
+  const params = await searchParams;
+  const page = parseInt(params.page) || 1;
+  const pageSize = parseInt(params.pageSize) || 10;
+
+  // const pageSize = parseInt(searchParams?.pageSize) || 10; // Default to 10
 
   await connectDB();
   const skip = (page - 1) * pageSize;

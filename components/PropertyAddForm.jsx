@@ -1,8 +1,11 @@
 'use client';
 import { useState } from 'react';
 import addProperty from '@/app/actions/addProperty';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const PropertyAddForm = () => {
+  const router = useRouter();
   const MAX_IMAGES = 4;
 
   const [error, setError] = useState('');
@@ -25,37 +28,66 @@ const PropertyAddForm = () => {
   // Handle client-side submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-
-    //upload images to cloudinary
-    const uploadPromises = selectedFiles.map(async (file) => {
-      const data = new FormData();
-      data.append('file', file);
-      data.append('upload_preset', 'property-tracker');
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
-        {
-          method: 'POST',
-          body: data,
-        }
-      );
-      const result = await res.json();
-      return result.secure_url; // Cloudinary URL
-    });
-
-    const cloudinaryUrls = await Promise.all(uploadPromises);
-
-    // Append the Cloudinary URLs to formData
-    cloudinaryUrls.forEach((url) => formData.append('images', url));
-
     try {
-      await addProperty(formData); //server action saves all fields + URLS
-      alert('Property added successfully!');
-      e.target.reset();
-      setSelectedFiles([]);
+      //upload images to cloudinary and collect URLs
+      const uploadedUrls = [];
+      for (const file of selectedFiles) {
+        const uploadData = new FormData();
+        uploadData.append('file', file);
+        uploadData.append(
+          'upload_preset',
+          process.env.NEXT_PUBLIC_CLOUDINARY_PRESET
+        );
+        try {
+          const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD}/upload`,
+            { method: 'POST', body: uploadData }
+          );
+          if (!res.ok) {
+            console.error(
+              'Cloudinary upload failed',
+              res.status,
+              res.statusText
+            );
+            continue;
+          }
+          const result = await res.json();
+          console.log('Cloudinary upload result:', result);
+          if (result.secure_url) {
+            uploadedUrls.push(result.secure_url);
+          } else console.error('Cloudinary upload failed for', result);
+        } catch (uploadError) {
+          console.error(
+            'Error uploading to Cloudinary:',
+            file.name,
+            uploadError
+          );
+        }
+      }
+
+      //prepare formData for server action
+      const formData = new FormData(e.target);
+      // Remove the original <input type="file" name="images"> files
+      formData.delete('images');
+
+      console.log('Uploaded URLs:', uploadedUrls);
+      if (uploadedUrls.length > 0) {
+        formData.append('images', JSON.stringify(uploadedUrls));
+      }
+
+      //call server action to add property
+      const added = await addProperty(formData);
+      if (added && added.success) {
+        toast.success('Property added successfully!');
+        router.push(`/properties/${added.property._id}`);
+      } else {
+        toast.error(
+          `Failed to add property: ${added.error}. Please try again.`
+        );
+      }
     } catch (err) {
-      console.error(err);
-      alert('Failed to add property.');
+      console.error('Error submitting form:', err);
+      toast.error('An unexpected error occurred. Please try again.');
     }
   };
 

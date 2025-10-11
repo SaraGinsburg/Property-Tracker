@@ -38,6 +38,8 @@ const PropertyMap = ({ property }) => {
         if (res.results && res.results.length > 0) {
           const { lat: latitude, lng: longitude } =
             res.results[0].geometry.location;
+          console.log(res.results[0].formatted_address);
+          console.log('street:', property.location.street);
 
           setLat(latitude);
           setLng(longitude);
