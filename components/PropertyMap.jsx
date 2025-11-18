@@ -17,10 +17,7 @@ const PropertyMap = ({ property }) => {
     width: '100%',
     height: '500px',
   });
-  const [return (
-  !loading &&
-  lat !== null &&
-  lng !== null && (loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [geocodeError, setGeocodeError] = useState(false);
 
   useEffect(() => {
