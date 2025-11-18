@@ -17,18 +17,35 @@ const PropertyMap = ({ property }) => {
     width: '100%',
     height: '500px',
   });
-  const [loading, setLoading] = useState(true);
+  const [return (
+  !loading &&
+  lat !== null &&
+  lng !== null && (loading, setLoading] = useState(true);
   const [geocodeError, setGeocodeError] = useState(false);
 
   useEffect(() => {
     const fetchCoords = async () => {
-      const fullAddress = `${property.location.street}, ${property.location.city}, ${property.location.state} ${property.location.zipcode}`;
+      const street = property.location?.street || '';
+      const city = property.location?.city || '';
+      const state = property.location?.state || '';
+      const zipcode = property.location?.zipcode || '';
+
+      const fullAddress = `${street}, ${city}, ${state} ${zipcode}`;
       console.log('Fetching coordinates for:', fullAddress);
 
       try {
         const res = await fetch(
           `/api/geocode?address=${encodeURIComponent(fullAddress)}`
         );
+        if (!res.ok) {
+          console.error(
+            'Geocode API returned error:',
+            res.status,
+            await res.text()
+          );
+          setGeocodeError(true);
+          return;
+        }
         const data = await res.json();
 
         if (data.results && data.results.length > 0) {
@@ -36,7 +53,7 @@ const PropertyMap = ({ property }) => {
             data.results[0].geometry.location;
           setLat(latitude);
           setLng(longitude);
-          setViewport({ ...viewport, latitude, longitude });
+          setViewport((prev) => ({ ...prev, latitude, longitude }));
         } else {
           console.error('No geocoding results found:', data);
           setGeocodeError(true);

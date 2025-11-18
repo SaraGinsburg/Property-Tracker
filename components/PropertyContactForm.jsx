@@ -37,7 +37,7 @@ const PropertyContactForm = ({ property }) => {
             type='hidden'
             id='recipient'
             name='recipient'
-            defaultValue={property.owner}
+            defaultValue={property.owner?._id ?? property.owner}
           />
 
           <div className='mb-4'>
