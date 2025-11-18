@@ -1,19 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { setDefaults, fromAddress } from 'react-geocode';
-console.log('fromAddress', fromAddress);
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Map, { Marker } from 'react-map-gl/mapbox';
+import mapboxgl from 'mapbox-gl'; // ✅ static import instead of dynamic
 import Image from 'next/image';
 import pin from '@/assets/images/pin.svg';
-import generalMarker from '@/assets/images/dot-circle.svg'; // replace with your icon
 import Spinner from './Spinner';
-
-setDefaults({
-  key: process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY,
-  language: 'en',
-  region: 'us',
-});
 
 const PropertyMap = ({ property }) => {
   const [lat, setLat] = useState(null);
@@ -30,29 +22,27 @@ const PropertyMap = ({ property }) => {
 
   useEffect(() => {
     const fetchCoords = async () => {
-      try {
-        const res = await fromAddress(
-          `${property.location.street}, ${property.location.city}, ${property.location.state} ${property.location.zipcode}`
-        );
-        //  Check geocode results
-        if (res.results && res.results.length > 0) {
-          const { lat: latitude, lng: longitude } =
-            res.results[0].geometry.location;
-          console.log(res.results[0].formatted_address);
-          console.log('street:', property.location.street);
+      const fullAddress = `${property.location.street}, ${property.location.city}, ${property.location.state} ${property.location.zipcode}`;
+      console.log('Fetching coordinates for:', fullAddress);
 
+      try {
+        const res = await fetch(
+          `/api/geocode?address=${encodeURIComponent(fullAddress)}`
+        );
+        const data = await res.json();
+
+        if (data.results && data.results.length > 0) {
+          const { lat: latitude, lng: longitude } =
+            data.results[0].geometry.location;
           setLat(latitude);
           setLng(longitude);
-          setViewport({
-            ...viewport,
-            latitude,
-            longitude,
-          });
+          setViewport({ ...viewport, latitude, longitude });
         } else {
+          console.error('No geocoding results found:', data);
           setGeocodeError(true);
         }
       } catch (error) {
-        console.log('Geocoding error:', error);
+        console.error('Geocoding error:', error);
         setGeocodeError(true);
       } finally {
         setLoading(false);
@@ -67,28 +57,28 @@ const PropertyMap = ({ property }) => {
     property.location.zipcode,
   ]);
 
-  if (loading) {
-    return <Spinner />;
-  }
-  if (geocodeError) {
+  if (loading) return <Spinner />;
+
+  if (geocodeError)
     return (
       <div className='text-center text-customPink'>
         Unable to load map for this property.
       </div>
     );
-  }
 
   return (
-    !loading && (
+    !loading &&
+    lat &&
+    lng && (
       <Map
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-        mapLib={import('mapbox-gl')}
+        mapLib={mapboxgl} // ✅ fixed
         initialViewState={{
           longitude: lng,
           latitude: lat,
           zoom: 11,
         }}
-        maxZoom={14} // limit how far in users can zoom
+        maxZoom={14}
         style={{ width: '100%', height: 500 }}
         mapStyle='mapbox://styles/mapbox/streets-v9'>
         <Marker longitude={lng} latitude={lat} anchor='bottom'>
@@ -98,4 +88,5 @@ const PropertyMap = ({ property }) => {
     )
   );
 };
+
 export default PropertyMap;
