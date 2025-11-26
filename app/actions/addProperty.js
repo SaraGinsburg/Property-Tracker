@@ -33,7 +33,7 @@ async function addProperty(formData) {
       imageUrls = imageUrls ? [imageUrls] : [];
     }
     //
-    console.log('images', imageUrls);
+
     const propertyData = {
       owner: userId,
       type: formData.get('type') || '',

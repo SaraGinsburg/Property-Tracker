@@ -40,9 +40,6 @@ export const updateProperty = async (formData) => {
     const finalImages = [
       ...new Set([...oldImages, ...uploadedImages].filter(Boolean)),
     ];
-    console.log('oldImages:', oldImages);
-    console.log('uploadedImages:', uploadedImages);
-    console.log('finalImages:', finalImages);
     // Prepare property data
     const propertyData = {
       owner: userId,

@@ -28,7 +28,6 @@ const PropertyMap = ({ property }) => {
       const zipcode = property.location?.zipcode || '';
 
       const fullAddress = `${street}, ${city}, ${state} ${zipcode}`;
-      console.log('Fetching coordinates for:', fullAddress);
 
       try {
         const res = await fetch(

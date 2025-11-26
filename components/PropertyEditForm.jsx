@@ -42,7 +42,6 @@ const PropertyEditForm = ({ property }) => {
     setNewFiles(files);
     setError('');
     e.target.value = '';
-    console.log('New files selected:', newFiles);
   };
 
   const submitDisabled = totalCount === 0 || totalCount > MAX_IMAGES;
@@ -66,7 +65,7 @@ const PropertyEditForm = ({ property }) => {
             { method: 'POST', body: uploadData }
           );
           const data = await res.json();
-          console.log('Cloudinary response:', data);
+
           if (data.secure_url) uploadedUrls.push(data.secure_url);
           else console.error('Cloudinary upload error:', data);
         } catch (err) {

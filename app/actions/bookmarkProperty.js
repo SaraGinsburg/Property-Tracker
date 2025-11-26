@@ -31,8 +31,6 @@ async function bookmarkProperty(propertyId) {
     isBookmarked = true;
   }
 
-  console.log(message);
-
   // Save the user with updated bookmarks
   await user.save();
 

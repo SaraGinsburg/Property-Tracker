@@ -52,7 +52,7 @@ const PropertyAddForm = () => {
             continue;
           }
           const result = await res.json();
-          console.log('Cloudinary upload result:', result);
+
           if (result.secure_url) {
             uploadedUrls.push(result.secure_url);
           } else console.error('Cloudinary upload failed for', result);
@@ -70,7 +70,6 @@ const PropertyAddForm = () => {
       // Remove the original <input type="file" name="images"> files
       formData.delete('images');
 
-      console.log('Uploaded URLs:', uploadedUrls);
       if (uploadedUrls.length > 0) {
         formData.append('images', JSON.stringify(uploadedUrls));
       }

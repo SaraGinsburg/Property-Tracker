@@ -62,8 +62,6 @@ Message:
 ${body}
 `.trim();
 
-    console.log('Sending inquiry email to owner:', recipientUser.email);
-
     const { data, error } = await resend.emails.send({
       from: process.env.EMAIL_FROM,
       to: recipientUser.email,
@@ -73,10 +71,13 @@ ${body}
       reply_to: email || undefined,
     });
 
-    console.log('DEBUG EMAIL_FROM:', process.env.EMAIL_FROM);
-    console.log('DEBUG API KEY PRESENT:', !!process.env.RESEND_API_KEY);
-    console.log('RESEND RESULT data:', data);
-    console.log('RESEND RESULT error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Sending inquiry email to owner:', recipientUser.email);
+      console.log('DEBUG EMAIL_FROM:', process.env.EMAIL_FROM);
+      console.log('DEBUG API KEY PRESENT:', !!process.env.RESEND_API_KEY);
+      console.log('RESEND RESULT data:', data);
+      console.log('RESEND RESULT error:', error);
+    }
 
     if (error) {
       console.error('Resend email error:', error);
