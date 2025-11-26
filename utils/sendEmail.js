@@ -12,7 +12,9 @@ export async function sendEmail({ to, subject, text, replyTo }) {
   const from =
     process.env.EMAIL_FROM || 'Property Tracker <onboarding@resend.dev>';
 
-  const result = await resend.emails.send({
+  console.log('Sending email via Resend:', { from, to, subject });
+
+  const { data, error } = await resend.emails.send({
     from,
     to,
     subject,
@@ -20,5 +22,12 @@ export async function sendEmail({ to, subject, text, replyTo }) {
     reply_to: replyTo,
   });
 
-  return result;
+  if (error) {
+    console.error('Resend error:', error);
+    // Make sure the caller (addMessage) knows it failed
+    throw new Error(error.message || 'Resend failed');
+  }
+
+  console.log('Resend email sent successfully, id:', data?.id);
+  return data;
 }

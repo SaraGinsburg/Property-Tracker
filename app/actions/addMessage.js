@@ -4,8 +4,9 @@ import connectDB from '@/config/database';
 import Message from '@/models/Message';
 import User from '@/models/User';
 import { getSessionUser } from '@/utils/getSessionUser';
-import { sendEmail } from '@/utils/sendEmail';
-// import { revalidatePath } from 'next/cache'; // only if you need it
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function addMessage(previousState, formData) {
   try {
@@ -35,11 +36,11 @@ async function addMessage(previousState, formData) {
 
     const propertyId = formData.get('property');
     const name = formData.get('name');
-    const email = formData.get('email'); // user's email from the form
+    const email = formData.get('email'); // user's email
     const phone = formData.get('phone');
     const body = formData.get('body');
 
-    // 1) Save the message in MongoDB
+    // 1) Save message
     const newMessage = new Message({
       sender: userId,
       recipient: recipientId,
@@ -52,7 +53,6 @@ async function addMessage(previousState, formData) {
 
     await newMessage.save();
 
-    // 2) Email the property owner via Resend
     const text = `
 You have a new inquiry on one of your properties.
 
@@ -60,14 +60,28 @@ From: ${name} (${email}${phone ? `, ${phone}` : ''})
 
 Message:
 ${body}
-    `.trim();
+`.trim();
 
-    await sendEmail({
+    console.log('Sending inquiry email to owner:', recipientUser.email);
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
       to: recipientUser.email,
       subject: 'New property inquiry',
       text,
-      replyTo: email, // "Reply" goes to the user
+      html: text.replace(/\n/g, '<br>'), // simple HTML version
+      reply_to: email || undefined,
     });
+
+    console.log('DEBUG EMAIL_FROM:', process.env.EMAIL_FROM);
+    console.log('DEBUG API KEY PRESENT:', !!process.env.RESEND_API_KEY);
+    console.log('RESEND RESULT data:', data);
+    console.log('RESEND RESULT error:', error);
+
+    if (error) {
+      console.error('Resend email error:', error);
+      return { error: 'Email could not be sent, please try again later.' };
+    }
 
     return { submitted: true };
   } catch (err) {
