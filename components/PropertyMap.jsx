@@ -64,10 +64,10 @@ const PropertyMap = ({ property }) => {
 
     fetchCoords();
   }, [
-    property.location.street,
-    property.location.city,
-    property.location.state,
-    property.location.zipcode,
+    property?.location?.street,
+    property?.location?.city,
+    property?.location?.state,
+    property?.location?.zipcode,
   ]);
 
   if (loading) return <Spinner />;
